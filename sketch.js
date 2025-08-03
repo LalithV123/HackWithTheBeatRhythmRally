@@ -1,4 +1,5 @@
-
+let gameStarted = false;
+let gameOver = false;
 let ball;
 let paddle;
 let synth;
@@ -18,7 +19,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(30);
   ball.update();
   ball.display();
   paddle.update();
@@ -31,6 +32,20 @@ function draw() {
 
   if (ball.offScreen()) {
     ball.reset();
+  }
+
+  if (gameStarted && !gameOver) {
+    player.update();
+    player.display();
+    ball.update();
+    ball.display();
+  }
+
+  if (gameOver) {
+    textSize(48);
+    fill("#FF5E5E");
+    textAlign(CENTER, CENTER);
+    text("Game Over", width / 2, height / 2);
   }
 }
 
@@ -69,14 +84,27 @@ class Ball {
   }
 
   update() {
-    this.x += this.vx;
-    this.y += this.vy;
+  if (!this.active) return;
 
-    if (this.x < 0 || this.x > width) {
-      this.vx *= -1;
-    }
+  this.x += this.vx;
+  this.y += this.vy;
+
+  // Bounce off left and right walls
+  if (this.x < 0 || this.x > width) {
+    this.vx *= -1;
   }
 
+  // Bounce off the top wall
+  if (this.y < 0) {
+    this.vy *= -1;
+  }
+
+  // GAME OVER: Ball hits bottom
+  if (this.y > height) {
+    this.active = false;
+    gameOver = true;
+  }
+}
   display() {
     fill(255);
     ellipse(this.x, this.y, this.r * 2);
